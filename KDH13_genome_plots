@@ -1,0 +1,950 @@
+{
+  n <- length(x) %/% 4
+  map <- rep(c(rep(TRUE,4),FALSE), n)
+  result <- rep(NA, n*5)
+  result[map] <- x
+  result
+}
+
+  setwd('/Volumes/UNTITLED/IMAD_2020/')
+  GeneDen<-read.table('KDH/GeneDen.txt')
+  RepeatDen<-read.table('KDH/RepeatDen.txt')
+  par(mfrow=c(1,9))
+  CHRs<-c("Chr1","Chr2","Chr3","Chr4","Chr5","Chr6","Chr7","Chr8","Chr9")
+  
+  for (ChrX in CHRs){
+    chr<-ChrX
+    {if (chr == "Chr1"){
+      colz='aquamarine'
+    }
+    if (chr == "Chr2"){
+      colz='azure2'
+    }
+    if (chr == "Chr3"){
+      colz='blue4'
+    }
+    if (chr == "Chr4"){
+      colz='blueviolet'
+    }
+    if (chr == "Chr5"){
+      colz='brown1'
+    }
+    if (chr == "Chr6"){
+      colz='darkgreen'
+    }
+    if (chr == "Chr7"){
+      colz='chocolate1'
+    }
+    if (chr == "Chr8"){
+      colz='cornflowerblue'
+    }
+    if (chr == "Chr9"){
+      colz='hotpink'
+    }
+    }
+    ##Genome Plots
+    #par(mar = c(bottom, left, top, right))
+    par(mar = c(2, 0, 5, 0))
+    plot(x=NULL,y=NULL,xlim = c(0,65000000),ylim = c(0,100), xlab='Size Mb',ylab='',
+         xaxt='n',yaxt='n', bty='n',main=chr)
+    
+    #RUN Program on Each Chromesome
+    {
+      #GeneOrder - Ordered
+      {
+        PaulN<-1.7
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        innerPos<-PaulN
+        outerPos<-PaulN + 0.07
+        
+        ChrOrderMatrix<-read.table('KDH/Gene_order.txt')
+        ChrOrderMatrix$CHR<-paste('Chr',ChrOrderMatrix$CHR,sep = '')
+        ChrOrderMatrix<-as.matrix(ChrOrderMatrix)
+        Posi<-ChrOrderMatrix[ChrOrderMatrix[,9]==chr,8]
+        for (i in Posi){
+          polygon.x <- c(i,i)
+          polygon.y <- c(34,37)
+          PolyX<-rbind(PolyX,c(polygon.x))
+          PolyY<-rbind(PolyY,c(polygon.y))
+        }
+        
+        PolyX<-PolyX[-1,]
+        PolyY<-PolyY[-1,]
+        PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+        PY<-cbind(PolyY[,1],PolyY[,1],PolyY[,2],PolyY[,2])
+        rect(0,37,max(PX[,1]),34, col=colz,border = colz)
+        polygon(x=cuts(t(PX)), y=cuts(t(PY)), border=adjustcolor('white', alpha.f = 0.2))
+      }
+      
+      #Beetle
+      {
+        Beetle7Den1<-read.table('/Volumes/UNTITLED/IMAD_2020/KDH/Beetle7.fa.BH.out')
+        Beetle7Den1[,2]
+        ssC<-c()
+        for (ss in Beetle7Den1[,2]){
+          ss<-strsplit((ss),'_')[[1]][1]
+          ssC<-c(ssC,ss)
+        }
+        Beetle7Den1<-cbind(Beetle7Den1,ssC)
+        PLCT<-Beetle7Den1
+        PLCT
+        
+        PLCT3<-c(0,0)
+        
+        for (i in unique(PLCT[,13])){
+          PLCT1<-PLCT[PLCT[,13]==i,9]
+          HP<-hist(PLCT1,plot = F,breaks = 20 )
+          length(HP$counts)
+          length(HP$breaks)
+          PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+          PLCT3<-rbind(PLCT3,PLCT2)
+        }
+        PLCT3<-PLCT3[-1,]
+        
+        
+        color.gradient <- function(x, colors=c("white","red"), colsteps=100) {
+          return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+        }
+        CG<-color.gradient(HP$counts)
+        
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        PLCT3<-PLCT3[PLCT3[,1]==chr,]
+        
+        
+        #POLYDRAW No DATA    
+        {
+          for (P in seq(1,length(PLCT3[,1]))){
+            highlight.area=as.vector(PLCT3[P,c(2)])
+            polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+            polygon.y <- c(38,39);
+            
+            
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            #print(N)
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+        }  
+      }
+      
+      #GeneDen
+      {
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        GeneDen<-read.table('/Volumes/UNTITLED/Projects/GSS/R_Circos/genes_total_circos_1.txt')
+        GeneDen
+        GeneDenTt<-c()
+        SSC<-c()
+        for (i in unique(GeneDen[,1])){
+          GeneDen1<-hist(GeneDen[GeneDen[,1]==i,2],plot=F,breaks=50)
+          GeneDen1$breaks<-GeneDen1$breaks[-length(GeneDen1$breaks)]
+          GeneDenTt<-rbind(GeneDenTt,cbind(as.numeric(GeneDen1$breaks),as.numeric(GeneDen1$counts)))
+          SSC<-c(SSC,rep(i,length(GeneDen1$breaks)))
+        }
+        noquote(SSC)
+        GeneDenTt<-cbind(SSC,GeneDenTt)
+        GeneDenTt
+        as.numeric(GeneDenTt[,2])
+        
+        {  
+          #HIST
+          histValues <- as.numeric(GeneDenTt[,3]);
+          max.value <- max(histValues);
+          min.value <- min(histValues);
+          histHeight <- histValues/max(histValues)
+          histHeight
+          
+          histHeight
+          GeneDenTt<-cbind(GeneDenTt,histHeight)
+          GeneDenTt
+          GeneDenTt[,c(1,2,2)]
+          head(GeneDenTt)
+          length(GeneDenTt[,1])
+          GeneDenTt<-GeneDenTt[GeneDenTt[,1]==chr,]
+          
+          
+          
+          for (P in seq(1,length(GeneDenTt[,1]))){
+            
+            
+            polygon.x <- c(as.numeric(GeneDenTt[P,2]),as.numeric(GeneDenTt[P,2])+50);
+            polygon.y <- c(45,45+as.numeric(GeneDenTt[P,4])*10);
+            
+            polygon.x
+            polygon.y
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          #polygon(x=cuts(t(PX)), y=cuts(t(PY)), border='grey')
+          par(new=T)
+          plot(PX[,1],PY[,2],type = "l",col='black',xlim = c(0,65000000),ylim = c(0,100),xaxt='n',yaxt='n', bty='n')
+          
+        }
+        
+      }
+      
+      #Copia
+      {
+        SSC<-c()
+        ShuJunTt<-data.frame()
+        ShuJun<-read.table('/Volumes/UNTITLED/Projects/GSS/EL10_fst/Global/ShuJun/Copia.gff')
+        ShuJun
+        for (i in unique(ShuJun[,1])){
+          ShuJun1<-hist(ShuJun[ShuJun[,1]==i,4],plot=F,breaks=1000)
+          ShuJun1$breaks<-ShuJun1$breaks[-length(ShuJun1$breaks)]
+          ShuJunTt<-rbind(ShuJunTt,cbind(as.numeric(ShuJun1$breaks),as.numeric(ShuJun1$counts)))
+          SSC<-c(SSC,rep(i,length(ShuJun1$breaks)))
+        }
+        head(ShuJunTt)
+        ShuJunTt[,1]
+        noquote(SSC)
+        ShuJunTtCopia<-(cbind(SSC,ShuJunTt))
+        
+        
+        
+        
+        #HIST
+        histValues <- as.numeric(ShuJunTtCopia[,3]);
+        max.value <- max(histValues);
+        min.value <- min(histValues);
+        histHeight <- ShuJunTtCopia[,3]/max(ShuJunTtCopia[,3])
+        histHeight
+        
+        histHeight
+        ShuJunTtCopia<-cbind(ShuJunTtCopia,histHeight)
+        ShuJunTtCopia
+        
+        HistX<-data.frame()
+        HistY<-data.frame()
+        ShuJunTtCopia[,c(1,2,2)]
+        head(ShuJunTtCopia)
+        length(ShuJunTtCopia[,1])
+        as.numeric(ShuJunTtCopia[,2])
+        
+        
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        ShuJunTtCopia<-ShuJunTtCopia[ShuJunTtCopia[,1]==chr,]
+        for (P in seq(1,length(ShuJunTtCopia[,1]))){
+          
+          polygon.x <- c(ShuJunTtCopia[P,2],ShuJunTtCopia[P,2]);
+          polygon.y <- c(40,40+ShuJunTtCopia[P,4]*10);
+          
+          
+          polygon.x
+          polygon.y
+          
+          PolyX<-rbind(PolyX,c(polygon.x))
+          PolyY<-rbind(PolyY,c(polygon.y))
+          
+        }
+        
+        PolyX<-PolyX[-1,]
+        PolyY<-PolyY[-1,]
+        PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+        PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+        print('yes')
+        polygon(x=cuts(t(PX)), y=cuts(t(PY)), border=adjustcolor('darkgrey', alpha.f = 0.5))
+        
+      }
+      
+      #Gypsy
+      {
+        SSC<-c()
+        ShuJunTt<-data.frame()
+        ShuJun<-read.table('/Volumes/UNTITLED/Projects/GSS/EL10_fst/Global/ShuJun/Gypsy.gff')
+        ShuJun
+        for (i in unique(ShuJun[,1])){
+          ShuJun1<-hist(ShuJun[ShuJun[,1]==i,4],plot=F,breaks=1000)
+          ShuJun1$breaks<-ShuJun1$breaks[-length(ShuJun1$breaks)]
+          ShuJunTt<-rbind(ShuJunTt,cbind(as.numeric(ShuJun1$breaks),as.numeric(ShuJun1$counts)))
+          SSC<-c(SSC,rep(i,length(ShuJun1$breaks)))
+        }
+        head(ShuJunTt)
+        ShuJunTt[,1]
+        noquote(SSC)
+        ShuJunTtGypsy<-as.data.frame(cbind(SSC,ShuJunTt))
+        
+        #HIST
+        histValues <- as.numeric(ShuJunTtGypsy[,3]);
+        max.value <- max(histValues);
+        min.value <- min(histValues);
+        histHeight <- ShuJunTtGypsy[,3]/ShuJunTtGypsy[order(ShuJunTtGypsy[,3],decreasing=T)[3],3]
+        histHeight
+        
+        histHeight
+        ShuJunTtGypsy<-cbind(ShuJunTtGypsy,histHeight)
+        ShuJunTtGypsy
+        
+        HistX<-data.frame()
+        HistY<-data.frame()
+        ShuJunTtGypsy[,c(1,2,2)]
+        head(ShuJunTtGypsy)
+        length(ShuJunTtGypsy[,1])
+        as.numeric(ShuJunTtGypsy$V2)
+        
+        
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        ShuJunTtGypsy<-ShuJunTtGypsy[ShuJunTtGypsy[,1]==chr,]
+        for (P in rownames(ShuJunTtGypsy)){
+          
+          polygon.x <- c(ShuJunTtGypsy[P,2],ShuJunTtGypsy[P,2]);
+          polygon.y <- c(40,40+ShuJunTtGypsy[P,4]*10);
+          
+          
+          polygon.x
+          polygon.y
+          
+          PolyX<-rbind(PolyX,c(polygon.x))
+          PolyY<-rbind(PolyY,c(polygon.y))
+          
+        }
+        
+        PolyX<-PolyX[-1,]
+        PolyY<-PolyY[-1,]
+        PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+        PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+        print('yes')
+        polygon(x=cuts(t(PX)), y=cuts(t(PY)), border='blue4')
+        
+      }
+      
+      
+      #Het F1
+      {
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        GeneDen<-read.table('/Volumes/UNTITLED/IMAD_2020/KDH/ALL_F1_het.txt')
+        GeneDen
+        GeneDenTt<-c()
+        SSC<-c()
+        for (i in unique(GeneDen[,1])){
+          GeneDen1<-hist(GeneDen[GeneDen[,1]==i,2],plot=F,breaks=100)
+          GeneDen1$breaks<-GeneDen1$breaks[-length(GeneDen1$breaks)]
+          GeneDenTt<-rbind(GeneDenTt,cbind(as.numeric(GeneDen1$breaks),as.numeric(GeneDen1$counts)))
+          SSC<-c(SSC,rep(i,length(GeneDen1$breaks)))
+        }
+        noquote(SSC)
+        GeneDenTt<-cbind(SSC,GeneDenTt)
+        GeneDenTt
+        as.numeric(GeneDenTt[,2])
+        
+        {  
+          #HIST
+          histValues <- as.numeric(GeneDenTt[,3]);
+          max.value <- max(histValues);
+          min.value <- min(histValues);
+          histHeight <- histValues/max(histValues)
+          histHeight
+          
+          histHeight
+          GeneDenTt<-cbind(GeneDenTt,histHeight)
+          GeneDenTt
+          GeneDenTt[,c(1,2,2)]
+          head(GeneDenTt)
+          length(GeneDenTt[,1])
+          GeneDenTt<-GeneDenTt[GeneDenTt[,1]==chr,]
+          
+          
+          
+          for (P in seq(1,length(GeneDenTt[,1]))){
+            
+            
+            polygon.x <- c(as.numeric(GeneDenTt[P,2]),as.numeric(GeneDenTt[P,2])+50);
+            polygon.y <- c(20,20+as.numeric(GeneDenTt[P,4])*10);
+            
+            polygon.x
+            polygon.y
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          #polygon(x=cuts(t(PX)), y=cuts(t(PY)), border='purple')
+          par(new=T)
+          plot(PX[,1],PY[,2],type = "l",col='grey',xlim = c(0,65000000),ylim = c(0,100),lty=1,xaxt='n',yaxt='n', bty='n')
+          
+        }
+        
+      }
+      
+      #Het KDH13
+      {
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        GeneDen<-read.table('/Volumes/UNTITLED/IMAD_2020/KDH/ALL_KDH13_het.txt')
+        GeneDen
+        GeneDenTt<-c()
+        SSC<-c()
+        for (i in unique(GeneDen[,1])){
+          GeneDen1<-hist(GeneDen[GeneDen[,1]==i,2],plot=F,breaks=100)
+          GeneDen1$breaks<-GeneDen1$breaks[-length(GeneDen1$breaks)]
+          GeneDenTt<-rbind(GeneDenTt,cbind(as.numeric(GeneDen1$breaks),as.numeric(GeneDen1$counts)))
+          SSC<-c(SSC,rep(i,length(GeneDen1$breaks)))
+        }
+        noquote(SSC)
+        GeneDenTt<-cbind(SSC,GeneDenTt)
+        GeneDenTt
+        as.numeric(GeneDenTt[,2])
+        
+        {  
+          #HIST
+          histValues <- as.numeric(GeneDenTt[,3]);
+          max.value <- max(histValues);
+          min.value <- min(histValues);
+          histHeight <- histValues/max(histValues)
+          histHeight
+          
+          histHeight
+          GeneDenTt<-cbind(GeneDenTt,histHeight)
+          GeneDenTt
+          GeneDenTt[,c(1,2,2)]
+          head(GeneDenTt)
+          length(GeneDenTt[,1])
+          GeneDenTt<-GeneDenTt[GeneDenTt[,1]==chr,]
+          
+          
+          
+          for (P in seq(1,length(GeneDenTt[,1]))){
+            
+            
+            polygon.x <- c(as.numeric(GeneDenTt[P,2]),as.numeric(GeneDenTt[P,2])+50);
+            polygon.y <- c(20,20+as.numeric(GeneDenTt[P,4])*10);
+            
+            polygon.x
+            polygon.y
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          #polygon(x=cuts(t(PX)), y=cuts(t(PY)), border='red')
+          par(new=T)
+          plot(PX[,1],PY[,2],type = "l",col='red',xlim = c(0,65000000),ylim = c(0,100),lty=1,xaxt='n',yaxt='n', bty='n')
+          
+          
+        }
+        
+      }
+      
+      #Het KDH19-17
+      {
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        GeneDen<-read.table('/Volumes/UNTITLED/IMAD_2020/KDH/ALL_KDH19_17_het.txt')
+        GeneDen
+        GeneDenTt<-c()
+        SSC<-c()
+        for (i in unique(GeneDen[,1])){
+          GeneDen1<-hist(GeneDen[GeneDen[,1]==i,2],plot=F,breaks=100)
+          GeneDen1$breaks<-GeneDen1$breaks[-length(GeneDen1$breaks)]
+          GeneDenTt<-rbind(GeneDenTt,cbind(as.numeric(GeneDen1$breaks),as.numeric(GeneDen1$counts)))
+          SSC<-c(SSC,rep(i,length(GeneDen1$breaks)))
+        }
+        noquote(SSC)
+        GeneDenTt<-cbind(SSC,GeneDenTt)
+        GeneDenTt
+        as.numeric(GeneDenTt[,2])
+        
+        {  
+          #HIST
+          histValues <- as.numeric(GeneDenTt[,3]);
+          max.value <- max(histValues);
+          min.value <- min(histValues);
+          histHeight <- histValues/max(histValues)
+          histHeight
+          
+          histHeight
+          GeneDenTt<-cbind(GeneDenTt,histHeight)
+          GeneDenTt
+          GeneDenTt[,c(1,2,2)]
+          head(GeneDenTt)
+          length(GeneDenTt[,1])
+          GeneDenTt<-GeneDenTt[GeneDenTt[,1]==chr,]
+          
+          
+          
+          for (P in seq(1,length(GeneDenTt[,1]))){
+            
+            
+            polygon.x <- c(as.numeric(GeneDenTt[P,2]),as.numeric(GeneDenTt[P,2])+50);
+            polygon.y <- c(20,20+as.numeric(GeneDenTt[P,4])*10);
+            
+            polygon.x
+            polygon.y
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          #polygon(x=cuts(t(PX)), y=cuts(t(PY)), border='blue')
+          par(new=T)
+          plot(PX[,1],PY[,2],type = "l",col='blue',xlim = c(0,65000000),ylim = c(0,100),lty=1,xaxt='n',yaxt='n', bty='n')
+          
+        }
+        
+      }
+      
+      #F1-SNP
+      {
+        PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/ALL_KDH13_uniq.txt")
+        PX<-c()
+        ssC<-PLCT[,1]
+        PLCT3<-c(0,0)
+        PLCT1<-PLCT[PLCT[,1]==chr,2]
+        HP<-hist(PLCT1,plot = F,breaks = 250 )
+        length(HP$counts)
+        length(HP$breaks)
+        PLCT3<-cbind(rep(chr,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+        PLCT3<-PLCT3[-1,]
+        
+        color.gradient <- function(x, colors=c("white","red"), colsteps=100) {
+          return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+        }
+        CG<-color.gradient(HP$counts)
+        
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        PLCT3<-PLCT3[PLCT3[,1]==chr,]
+        
+        
+        #POLYDRAW No DATA    
+        {
+          for (P in seq(1,length(PLCT3[,1]))){
+            highlight.area=as.vector(PLCT3[P,c(2)])
+            polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+            polygon.y <- c(17.5,18.5);
+            
+            
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            #print(N)
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+        } 
+      }
+      #F1- SNP
+      {
+        PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/ALL_KDH19_17_uniq.txt")
+        PX<-c()
+        ssC<-PLCT[,1]
+        PLCT3<-c(0,0)
+        PLCT1<-PLCT[PLCT[,1]==chr,2]
+        HP<-hist(PLCT1,plot = F,breaks = 250 )
+        length(HP$counts)
+        length(HP$breaks)
+        PLCT3<-cbind(rep(chr,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+        PLCT3<-PLCT3[-1,]
+        
+        color.gradient <- function(x, colors=c("white","blue"), colsteps=100) {
+          return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+        }
+        CG<-color.gradient(HP$counts)
+        
+        PolyX<-c(0,0)
+        PolyY<-c(0,0)
+        PLCT3<-PLCT3[PLCT3[,1]==chr,]
+        
+        
+        #POLYDRAW No DATA    
+        {
+          for (P in seq(1,length(PLCT3[,1]))){
+            highlight.area=as.vector(PLCT3[P,c(2)])
+            polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+            polygon.y <- c(16,17);
+            
+            
+            PolyX<-rbind(PolyX,c(polygon.x))
+            PolyY<-rbind(PolyY,c(polygon.y))
+            #print(N)
+          }
+          
+          PolyX<-PolyX[-1,]
+          PolyY<-PolyY[-1,]
+          PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+          PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+          print('yes')
+          polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+        } 
+      }
+      
+    }
+    
+    
+  }
+  
+
+
+#VarDensity
+  {
+    PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/ALL.merged.filtered.vcf")
+    PX<-c()
+    ssC<-PLCT[,1]
+    PLCT3<-c(0,0)
+    for (i in unique(PLCT[,1])){
+      PLCT1<-PLCT[PLCT[,1]==i,2]
+      HP<-hist(PLCT1,plot = F,breaks = 250 )
+      length(HP$counts)
+      length(HP$breaks)
+      PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+      PLCT3<-rbind(PLCT3,PLCT2)
+    }
+    PLCT3<-PLCT3[-1,]
+    
+    color.gradient <- function(x, colors=c("white","black"), colsteps=100) {
+      return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+    }
+    CG<-color.gradient(HP$counts)
+    
+    PolyX<-c(0,0)
+    PolyY<-c(0,0)
+    PLCT3<-PLCT3[PLCT3[,1]==chr,]
+    
+    
+    #POLYDRAW No DATA    
+    {
+      for (P in seq(1,length(PLCT3[,1]))){
+        highlight.area=as.vector(PLCT3[P,c(2)])
+        polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+        polygon.y <- c(17,18);
+        
+        
+        PolyX<-rbind(PolyX,c(polygon.x))
+        PolyY<-rbind(PolyY,c(polygon.y))
+        #print(N)
+      }
+      
+      PolyX<-PolyX[-1,]
+      PolyY<-PolyY[-1,]
+      PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+      PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+      print('yes')
+      polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+    } 
+  }
+
+
+#KDH13 - SNP
+{
+  PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/ALL_KDH13_uniq.txt")
+  PX<-c()
+  ssC<-PLCT[,1]
+  PLCT3<-c(0,0)
+  for (i in unique(PLCT[,1])){
+    PLCT1<-PLCT[PLCT[,1]==i,2]
+    HP<-hist(PLCT1,plot = F,breaks = 250 )
+    length(HP$counts)
+    length(HP$breaks)
+    PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+    PLCT3<-rbind(PLCT3,PLCT2)
+  }
+  PLCT3<-PLCT3[-1,]
+  
+  color.gradient <- function(x, colors=c("white","black"), colsteps=100) {
+    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+  }
+  CG<-color.gradient(HP$counts)
+  
+  PolyX<-c(0,0)
+  PolyY<-c(0,0)
+  PLCT3<-PLCT3[PLCT3[,1]==chr,]
+  
+  
+  #POLYDRAW No DATA    
+  {
+    for (P in seq(1,length(PLCT3[,1]))){
+      highlight.area=as.vector(PLCT3[P,c(2)])
+      polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+      polygon.y <- c(17,18);
+      
+      
+      PolyX<-rbind(PolyX,c(polygon.x))
+      PolyY<-rbind(PolyY,c(polygon.y))
+      #print(N)
+    }
+    
+    PolyX<-PolyX[-1,]
+    PolyY<-PolyY[-1,]
+    PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+    PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+    print('yes')
+    polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+  } 
+}
+#KDH19-17 - SNP
+{
+  PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/ALL_KDH19_17_uniq.txt")
+  PX<-c()
+  ssC<-PLCT[,1]
+  PLCT3<-c(0,0)
+  for (i in unique(PLCT[,1])){
+    PLCT1<-PLCT[PLCT[,1]==i,2]
+    HP<-hist(PLCT1,plot = F,breaks = 250 )
+    length(HP$counts)
+    length(HP$breaks)
+    PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+    PLCT3<-rbind(PLCT3,PLCT2)
+  }
+  PLCT3<-PLCT3[-1,]
+  
+  color.gradient <- function(x, colors=c("white","black"), colsteps=100) {
+    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+  }
+  CG<-color.gradient(HP$counts)
+  
+  PolyX<-c(0,0)
+  PolyY<-c(0,0)
+  PLCT3<-PLCT3[PLCT3[,1]==chr,]
+  
+  
+  #POLYDRAW No DATA    
+  {
+    for (P in seq(1,length(PLCT3[,1]))){
+      highlight.area=as.vector(PLCT3[P,c(2)])
+      polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+      polygon.y <- c(11,12);
+      
+      
+      PolyX<-rbind(PolyX,c(polygon.x))
+      PolyY<-rbind(PolyY,c(polygon.y))
+      #print(N)
+    }
+    
+    PolyX<-PolyX[-1,]
+    PolyY<-PolyY[-1,]
+    PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+    PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+    print('yes')
+    polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+  } 
+}
+#KDH13 - indels
+{
+  PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/KDH13UniqueIndels_for_Rcircos.txt")
+  PX<-c()
+  ssC<-PLCT[,1]
+  PLCT3<-c(0,0)
+  for (i in unique(PLCT[,1])){
+    PLCT1<-PLCT[PLCT[,1]==i,2]
+    HP<-hist(PLCT1,plot = F,breaks = 250 )
+    length(HP$counts)
+    length(HP$breaks)
+    PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+    PLCT3<-rbind(PLCT3,PLCT2)
+  }
+  PLCT3<-PLCT3[-1,]
+  
+  color.gradient <- function(x, colors=c("white","grey"), colsteps=40) {
+    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+  }
+  CG<-color.gradient(HP$counts)
+  
+  PolyX<-c(0,0)
+  PolyY<-c(0,0)
+  PLCT3<-PLCT3[PLCT3[,1]==chr,]
+  
+  
+  #POLYDRAW No DATA    
+  {
+    for (P in seq(1,length(PLCT3[,1]))){
+      highlight.area=as.vector(PLCT3[P,c(2)])
+      polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+      polygon.y <- c(18,19);
+      
+      
+      PolyX<-rbind(PolyX,c(polygon.x))
+      PolyY<-rbind(PolyY,c(polygon.y))
+      #print(N)
+    }
+    
+    PolyX<-PolyX[-1,]
+    PolyY<-PolyY[-1,]
+    PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+    PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+    print('yes')
+    polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+  } 
+}
+#KDH19-17 - indel
+{
+  PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/KDH19_17UniqueIndels_for_Rcircos.txt")
+  PX<-c()
+  ssC<-PLCT[,1]
+  PLCT3<-c(0,0)
+  for (i in unique(PLCT[,1])){
+    PLCT1<-PLCT[PLCT[,1]==i,3]
+    HP<-hist(PLCT1,plot = F,breaks = 250 )
+    length(HP$counts)
+    length(HP$breaks)
+    PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+    PLCT3<-rbind(PLCT3,PLCT2)
+  }
+  PLCT3<-PLCT3[-1,]
+  
+  color.gradient <- function(x, colors=c("white","grey"), colsteps=100) {
+    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+  }
+  CG<-color.gradient(HP$counts)
+  
+  PolyX<-c(0,0)
+  PolyY<-c(0,0)
+  PLCT3<-PLCT3[PLCT3[,1]==chr,]
+  
+  
+  #POLYDRAW No DATA    
+  {
+    for (P in seq(1,length(PLCT3[,1]))){
+      highlight.area=as.vector(PLCT3[P,c(2)])
+      polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+      polygon.y <- c(12,13);
+      
+      
+      PolyX<-rbind(PolyX,c(polygon.x))
+      PolyY<-rbind(PolyY,c(polygon.y))
+      #print(N)
+    }
+    
+    PolyX<-PolyX[-1,]
+    PolyY<-PolyY[-1,]
+    PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+    PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+    print('yes')
+    polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+  } 
+}
+#F1 - indel
+{
+  PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/KDH_F1_P1_informative.vcf")
+  PX<-c()
+  ssC<-PLCT[,1]
+  PLCT3<-c(0,0)
+  for (i in unique(PLCT[,1])){
+    PLCT1<-PLCT[PLCT[,1]==i,3]
+    HP<-hist(PLCT1,plot = F,breaks = 250 )
+    length(HP$counts)
+    length(HP$breaks)
+    PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+    PLCT3<-rbind(PLCT3,PLCT2)
+  }
+  PLCT3<-PLCT3[-1,]
+  
+  color.gradient <- function(x, colors=c("white","red"), colsteps=100) {
+    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+  }
+  CG<-color.gradient(HP$counts)
+  
+  PolyX<-c(0,0)
+  PolyY<-c(0,0)
+  PLCT3<-PLCT3[PLCT3[,1]==chr,]
+  
+  
+  #POLYDRAW No DATA    
+  {
+    for (P in seq(1,length(PLCT3[,1]))){
+      highlight.area=as.vector(PLCT3[P,c(2)])
+      polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+      polygon.y <- c(15,16);
+      
+      
+      PolyX<-rbind(PolyX,c(polygon.x))
+      PolyY<-rbind(PolyY,c(polygon.y))
+      #print(N)
+    }
+    
+    PolyX<-PolyX[-1,]
+    PolyY<-PolyY[-1,]
+    PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+    PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+    print('yes')
+    polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+  } 
+}
+#F1 - SNP
+{
+  PLCT<-read.table("/Volumes/UNTITLED/IMAD_2020/KDH/KDH_F1_P1_informative.vcf")
+  PX<-c()
+  ssC<-PLCT[,1]
+  PLCT3<-c(0,0)
+  for (i in unique(PLCT[,1])){
+    PLCT1<-PLCT[PLCT[,1]==i,3]
+    HP<-hist(PLCT1,plot = F,breaks = 250 )
+    length(HP$counts)
+    length(HP$breaks)
+    PLCT2<-cbind(rep(i,length(HP$counts)),HP$breaks[seq(0,length(HP$breaks)-1)])
+    PLCT3<-rbind(PLCT3,PLCT2)
+  }
+  PLCT3<-PLCT3[-1,]
+  
+  color.gradient <- function(x, colors=c("white","red4"), colsteps=100) {
+    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+  }
+  CG<-color.gradient(HP$counts)
+  
+  PolyX<-c(0,0)
+  PolyY<-c(0,0)
+  PLCT3<-PLCT3[PLCT3[,1]==chr,]
+  
+  
+  #POLYDRAW No DATA    
+  {
+    for (P in seq(1,length(PLCT3[,1]))){
+      highlight.area=as.vector(PLCT3[P,c(2)])
+      polygon.x <- c(highlight.area,as.numeric(highlight.area)+500000);
+      polygon.y <- c(14,15);
+      
+      
+      PolyX<-rbind(PolyX,c(polygon.x))
+      PolyY<-rbind(PolyY,c(polygon.y))
+      #print(N)
+    }
+    
+    PolyX<-PolyX[-1,]
+    PolyY<-PolyY[-1,]
+    PX<-cbind(PolyX[,1],PolyX[,1],PolyX[,2],PolyX[,2])
+    PY<-cbind(PolyY[,1],PolyY[,2],PolyY[,2],PolyY[,1])
+    print('yes')
+    polygon(x=cuts(t(PX)), y=cuts(t(PY)), col = CG,border=CG)
+  } 
+}
+
+
+
+dev.copy(png,"/Volumes/UNTITLED/IMAD_2020/KDH/KDHGenomes.png",height=6,width=11,units='in',res=1000)
+dev.off()
