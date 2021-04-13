@@ -50,3 +50,11 @@ module load tabix
 tabix -p vcf L19.all.vcf.gz
 bcftools merge CROPTYPE_FILES > CROPTYPE.vcf
 for i in $(ls);do bcftools convert -o $i.gz -O z $i;done
+
+Annotations:
+liftoff -g EL10_1_maker.gff -o EL10_2.gff  /mnt/z/2020/EL10_genome_files/Beta_vulgaris.fa EL10.1_final_scaffolds.fasta
+
+K-mer Anaysis:
+jellyfish count -C -m 21 -s 1000000000 -t 10 *.fastq -o reads.jf
+genomescope.R -i histogram_file -o output_dir -k k-mer_length
+
